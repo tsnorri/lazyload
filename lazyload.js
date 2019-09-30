@@ -35,7 +35,8 @@
         selector: ".lazyload",
         root: null,
         rootMargin: "0px",
-        threshold: 0
+        threshold: 0,
+        loadCallback: null
     };
 
     /**
@@ -117,6 +118,7 @@
                             if (srcset) {
                                 entry.target.srcset = srcset;
                             }
+                            self.setupLoadCallback(entry.target);
                         } else {
                             entry.target.style.backgroundImage = "url(" + src + ")";
                         }
@@ -149,10 +151,25 @@
                     if (srcset) {
                         image.srcset = srcset;
                     }
+                    
+                    self.setupLoadCallback(image);
                 } else {
                     image.style.backgroundImage = "url('" + src + "')";
                 }
             });
+        },
+        
+        setupLoadCallback: function(image) {
+            if (this.settings.loadCallback) {
+                let cb = this.settings.loadCallback;
+                if (image.complete) {
+                    cb(image);
+                } else {
+                    image.addEventListener("load", function() {
+                        cb(image);
+                    });
+                }
+            }
         },
 
         destroy: function () {
